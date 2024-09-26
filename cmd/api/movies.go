@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/vihaan404/greenlight/internal/data"
 	"github.com/vihaan404/greenlight/internal/validator"
@@ -36,9 +36,17 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Movie: %+v\n", movie)
+	err = app.models.Movies.Insert(movie)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	header := make(http.Header)
+	header.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
+	err = app.writeJson(w, r, 201, envelope{"movie": movie}, header)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,15 +58,16 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		app.notFoundResponse(w, r)
 		return
 	}
+	movie, err := app.models.Movies.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
 
-	movie := data.Movie{
-		ID:       id,
-		Title:    "Inception",
-		CratedAt: time.Now(),
-		Year:     2010,
-		Runtime:  148,
-		Genres:   []string{"Action", "Adventure", "Sci-Fi"},
-		Version:  1,
+		}
+		return
 	}
 
 	err = app.writeJson(w, r, http.StatusOK, envelope{"movie": movie}, nil)
