@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	url     = "postgres://greenlight:pa55word@localhost/greenlight"
+	URL     = "postgres://greenlight:pa55word@localhost/greenlight"
 	version = "1.0.0"
 )
 
@@ -40,7 +40,7 @@ func main() {
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment(development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", url, "Postgres DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", URL, "Postgres DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "Postgres max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "Postgres max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "Postgres max idle time")
