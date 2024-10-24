@@ -2,6 +2,11 @@ package main
 
 import "net/http"
 
+func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+	message := "rate limit exceeded"
+	app.errorResponse(w, r, http.StatusTooManyRequests, message)
+}
+
 func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request) {
 	message := "unable  to update the record due to an edit conflict, please try again"
 	app.errorResponse(w, r, http.StatusConflict, message)
@@ -12,7 +17,10 @@ func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.
 }
 
 func (app *application) logError(r *http.Request, err error) {
-	app.logger.Println(err)
+	app.logger.PrintError(err, map[string]string{
+		"request_method": r.Method,
+		"request_url":    r.URL.String(),
+	})
 }
 
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
