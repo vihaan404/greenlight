@@ -79,7 +79,7 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-	logger.PrintInfo("starting server", map[string]string{
+	logger.PrintInfo("starting server right now ", map[string]string{
 		"addr": srv.Addr,
 		"env":  cfg.env,
 	})
